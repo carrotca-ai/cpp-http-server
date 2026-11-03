@@ -9,6 +9,7 @@ namespace http
     constexpr std::string_view TEXT_PLAIN{"text/plain"};
     constexpr std::string_view TEXT_HTML{"text/html"};
     constexpr std::string_view HTTP{"HTTP"};
+    constexpr std::string_view S500{"500 Internal Server Error"};
     constexpr std::string_view S405{"405 Method not allowed"};
     constexpr std::string_view S404{"404 Not Found"};
     constexpr std::string_view S400{"Bad Request"};

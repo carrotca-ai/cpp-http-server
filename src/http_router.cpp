@@ -1,73 +1,105 @@
 #include "http_router.hpp"
+#include <cmath>
 #include "calculator.hpp"
 #include "file_utils.hpp"
-#include "http_keywords.hpp"
+#include "http_constants.hpp"
 #include "time_utils.hpp"
 #include "http_server_config.hpp"
 #include "http_query_parser.hpp"
-#include <iostream>
-#include <fstream>
 #include <string>
 #include <string_view>
-
-namespace server
-{
+#include <iostream>
+#include <stdexcept>
+namespace server {
     http::Response route(http::Request& request)
     {
         http::Response response{};
-        const std::string& route{request.getRoute()};
+        const std::string_view path{request.getPath()};
         if (request.getMethod() != http::GET)
         {
             response.statusCode = http::S405;
             response.contentType = http::TEXT_PLAIN;
             response.body = "Method not allowed";
         }
-        else if (route == "/")
+        else if (path == "/")
         {
             response.statusCode = http::S200;
             response.contentType = http::TEXT_HTML;
-            response.body = file_utils::readFileStr(server_config::static_files::indexHtmlPath);
-        }
-        else if (route.starts_with("/api/calculate?"))
-        {
-            std::vector<std::pair<std::string, std::string>> test{http::parseQuery(request)};
-            for (const auto& pair : test) {
-                std::cout << pair.first << ": " << pair.second << std::endl;
-            }
-            response.contentType = http::TEXT_PLAIN;
-            response.statusCode = http::S200;
             try
             {
-            const auto aStart = route.find("a=") + 2;
-            const auto aEnd = route.find("&b=");
-            const auto bStart = route.find("b=") + 2;
-            const auto bEnd = route.find("&op=");
+                response.body = file_utils::readFileStr(server_config::static_files::indexHtmlPath);
+            }
+            catch (const std::exception& e)
+            {
+                response.statusCode = http::S500;
+                response.contentType = http::TEXT_PLAIN;
+                response.body = "Internal Server Error";
+                std::cerr << e.what() << std::endl;
+            }
+        }
+        else if (path == "/api/calculate")
+        {
+            response.statusCode = http::S200;
+            response.contentType = http::TEXT_PLAIN;
+            try
+            {
 
-            const double num1{
-                std::stod(route.substr(aStart, aEnd - aStart))
-            };
-            const double num2{
-                std::stod(route.substr(bStart, bEnd - bStart))
-            };
-            const std::string operation{
-                route.substr(route.find("op=") + 3)
-            };
-                double result{calc::calculate(num1, operation, num2)};
+                http::QueryParams params{http::parseQuery(request)};
+#ifndef NDEBUG
+                for (const auto& param : params) {
+                    std::cout << param.first << ": " << param.second << std::endl;
+                }
+#endif
+                double num1{};
+                bool hasA{};
+                double num2{};
+                bool hasB{};
+                std::string op{};
+                bool hasOp{};
+                size_t processed{};
+                if (params.size() != 3)
+                    throw std::invalid_argument("Expected 3 query parameters");
+                 for (const auto& param : params)
+                 {
+                     if (param.first == "a" && !hasA)
+                     {
+                         hasA = true;
+                         num1 = std::stod(param.second, &processed);
+                         if (processed != param.second.size() || !std::isfinite(num1))
+                             throw std::invalid_argument("Invalid query parameter");
+                     }
+                     else if (param.first == "b" && !hasB)
+                     {
+                         hasB = true;
+                         num2 = std::stod(param.second, &processed);
+                         if (processed != param.second.size()|| !std::isfinite(num2))
+                             throw std::invalid_argument("Invalid query parameter");
+                     }
+                     else if (param.first == "op" && !hasOp)
+                     {
+                         hasOp = true;
+                         op = param.second;
+                     }
+                     else
+                         throw std::invalid_argument("Invalid query parameter");
+                 }
+                double result{calc::calculate(num1, op, num2)};
                 response.body = std::to_string(result);
             }
             catch (const std::invalid_argument& e)
             {
                 response.statusCode = http::S400;
                 response.body = e.what();
-
+                std::cerr << e.what() << std::endl;
             }
-            catch (const std::out_of_range&)
+            catch (const std::out_of_range& e)
             {
                 response.statusCode = http::S400;
                 response.body = "Number out of range";
+                std::cerr << e.what() << std::endl;
             }
         }
-        else if (route == "/api/time" || route == "/api/time/")
+        else if (path == "/api/time" || path == "/api/time/")
         {
             response.statusCode = http::S200;
             response.contentType = http::TEXT_PLAIN;

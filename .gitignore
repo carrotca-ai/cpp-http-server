@@ -1,6 +1,6 @@
 #CMake build directories
 cmake-build-*/
 build/
-
+build-check/
 
 .idea/

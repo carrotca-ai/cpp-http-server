@@ -1,9 +1,9 @@
-#include "http_server.hpp"
+#include "server/http_server.hpp"
 
 #include <iostream>
-#include "http_request.hpp"
-#include "http_response.hpp"
-#include "http_router.hpp"
+#include "http/http_request.hpp"
+#include "http/http_response.hpp"
+#include "server/http_router.hpp"
 #include "boost/asio.hpp"
 
 namespace server

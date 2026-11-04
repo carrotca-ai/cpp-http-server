@@ -1,7 +1,7 @@
-#include "http_query_parser.hpp"
+#include "http/http_query_parser.hpp"
 
 #include <stdexcept>
-#include "http_request.hpp"
+#include "http/http_request.hpp"
 namespace http
 {
     //forward declaration of query validation

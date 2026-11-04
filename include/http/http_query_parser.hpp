@@ -1,7 +1,7 @@
 #ifndef HTTP_CALCULATOR_HTTP_QUERY_PARSER_HPP
 #define HTTP_CALCULATOR_HTTP_QUERY_PARSER_HPP
 #include <vector>
-#include "http_request.hpp"
+#include "http/http_request.hpp"
 namespace http
 {
     using QueryParams = std::vector<std::pair<std::string, std::string>>;

@@ -11,7 +11,7 @@
 #include <iostream>
 #include <stdexcept>
 namespace server {
-    http::Response route(http::Request& request)
+    http::Response route(const http::Request& request)
     {
         http::Response response{};
         const std::string_view path{request.getPath()};

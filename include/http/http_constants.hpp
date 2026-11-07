@@ -12,7 +12,7 @@ namespace http
     constexpr std::string_view S500{"500 Internal Server Error"};
     constexpr std::string_view S405{"405 Method not allowed"};
     constexpr std::string_view S404{"404 Not Found"};
-    constexpr std::string_view S400{"Bad Request"};
+    constexpr std::string_view S400{"400 Bad Request"};
     constexpr std::string_view S200{"200 OK"};
 }
 #endif //HTTP_CALCULATOR_HTTP_KEYWORDS_HPP

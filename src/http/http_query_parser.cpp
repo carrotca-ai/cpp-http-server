@@ -6,7 +6,7 @@ namespace http
 {
     //forward declaration of query validation
     namespace {
-        void validateQuery(const std::vector<size_t>& equalPos, const std::vector<size_t>& ampPos   );
+        void validateQuery(const std::vector<size_t>& equalPos, const std::vector<size_t>& ampPos);
     }
     QueryParams parseQuery(const http::Request& request)
     {

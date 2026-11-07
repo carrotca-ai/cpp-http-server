@@ -28,7 +28,7 @@ namespace server
                 );
 
                 http::Request request{rawRequest};
-
+                std::cout << request.getMethod() << request.getRoute() << request.getVersion() << '\n';
                 http::Response response{server::route(request)};
 
                 boost::asio::write(

@@ -5,6 +5,16 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 add_compile_options(-Wall -Wextra -Wpedantic)
+
+include(FetchContent)
+
+FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG v1.18.0
+)
+FetchContent_MakeAvailable(googletest)
+
 add_executable(http_server
         "${CMAKE_SOURCE_DIR}/apps/main.cpp"
 )
@@ -53,3 +63,52 @@ target_link_libraries(server PRIVATE
         Boost::headers
         Threads::Threads
 )
+
+enable_testing()
+
+add_executable(calculator_tests
+        "${CMAKE_SOURCE_DIR}/tests/calculator_test.cpp"
+)
+target_link_libraries(calculator_tests PRIVATE
+        calculator
+        GTest::gtest_main
+)
+
+add_executable(query_parser_tests
+        "${CMAKE_SOURCE_DIR}/tests/query_parser_test.cpp"
+)
+target_link_libraries(query_parser_tests PRIVATE
+        http
+        GTest::gtest_main
+)
+
+add_executable(http_request_tests
+        "${CMAKE_SOURCE_DIR}/tests/http_request_test.cpp"
+)
+target_link_libraries(http_request_tests PRIVATE
+        http
+        GTest::gtest_main
+)
+
+add_executable(http_response_tests
+        "${CMAKE_SOURCE_DIR}/tests/http_response_test.cpp"
+)
+target_link_libraries(http_response_tests PRIVATE
+        http
+        GTest::gtest_main
+)
+
+add_executable(http_router_tests
+        "${CMAKE_SOURCE_DIR}/tests/http_router_test.cpp"
+)
+target_link_libraries(http_router_tests PRIVATE
+        server
+        GTest::gtest_main
+)
+
+include(GoogleTest)
+gtest_discover_tests(calculator_tests)
+gtest_discover_tests(http_request_tests)
+gtest_discover_tests(http_response_tests)
+gtest_discover_tests(query_parser_tests)
+gtest_discover_tests(http_router_tests)

@@ -15,6 +15,10 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
+if(NOT DEFINED SERVER_PORT)
+    set(SERVER_PORT 8000)
+endif()
+
 add_executable(http_server
         "${CMAKE_SOURCE_DIR}/apps/main.cpp"
 )
@@ -26,6 +30,8 @@ add_library(server
 target_include_directories(server PUBLIC
         "${CMAKE_SOURCE_DIR}/include/"
 )
+
+target_compile_definitions(server PUBLIC SERVER_PORT=${SERVER_PORT})
 
 add_library(http
         "${CMAKE_SOURCE_DIR}/src/http/http_query_parser.cpp")

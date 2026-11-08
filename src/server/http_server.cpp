@@ -14,28 +14,35 @@ namespace server
         try {
             boost::asio::io_context io_context;
             tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), port));
-            for (;;)
-            {
+            for (;;) {
                 tcp::socket socket(io_context);
                 acceptor.accept(socket);
                 boost::system::error_code ec;
-                std::string rawRequest;
 
-                boost::asio::read_until(
+                try
+                {
+                    std::string rawRequest;
+                    boost::asio::read_until(
                     socket,
                     boost::asio::dynamic_buffer(rawRequest),
-                    "\r\n\r\n"
-                );
+                    "\r\n\r\n");
+                    http::Request request{rawRequest};
+                    std::cout << request.getMethod() << request.getRoute() << request.getVersion() << '\n';
+                    http::Response response{server::route(request)};
 
-                http::Request request{rawRequest};
-                std::cout << request.getMethod() << request.getRoute() << request.getVersion() << '\n';
-                http::Response response{server::route(request)};
-
-                boost::asio::write(
-                         socket,
-                         boost::asio::buffer(response.serialize()),
-                         ec
-                     );
+                    boost::asio::write(
+                             socket,
+                             boost::asio::buffer(response.serialize()),
+                             ec);
+                }
+                catch (const boost::system::system_error& e)
+                {
+                   std::cerr << e.what() << std::endl;
+                }
+                catch (const std::exception& e)
+                {
+                    std::cerr << e.what() << std::endl;
+                }
                 if (ec)
                 {
                     std::cerr << ec.message() << std::endl;
